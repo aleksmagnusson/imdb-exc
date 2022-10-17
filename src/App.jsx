@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import {
   Outlet,
   createBrowserRouter,
@@ -8,12 +9,21 @@ import ErrorPage from "./error-page";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
+import { TokenProvider } from "./useTokenStore";
 import "./App.css";
 
+export const TokenContext = React.createContext({});
+
 function Root() {
+  const { token, setToken } = useState("");
+
   return (
     <div>
-      <Outlet />
+      <TokenProvider>
+        <TokenContext.Provider value={{ token, setToken }}>
+          <Outlet />
+        </TokenContext.Provider>
+      </TokenProvider>
     </div>
   );
 }

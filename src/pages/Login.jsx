@@ -1,45 +1,61 @@
-import { Form } from "react-router-dom";
-import React, { useState } from 'react'
-import axios from 'axios'
-
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { redirect } from "react-router-dom";
 
 function Login() {
+  const [email, setEmail] = useState(" ");
+  const [password, setPassword] = useState(" ");
+  const [error, setError] = useState(" ");
+  const [token, setToken] = useState(" ");
 
-    const [email, setEmail] = useState(" ");
-    const [password, setPassword] = useState(" ");
-    const [error, setError] = useState(" ");
+  const login = async () => {
+    try {
+      const response = await axios.post("http://localhost:8080/auth", {
+        email: email,
+        password: password,
+      });
 
-    const login = async () => {
-        try {
-            const response = await axios.post("http://localhost:8080/auth", {
-                email: email,
-                password: password
-            })
+      return response.data.token;
+    } catch (axiosError) {
+      const status = axiosError.response.data.status;
+      const message = axiosError.response.data.status;
 
-            return response.data.token;
-        } catch (axiosError) {
-            const status = axiosError.response.data.status;
-            const message = axiosError.response.data.status;
-
-            if (status === "error") {
-                setError(message);
-            }
-        }
+      if (status === "error") {
+        setError(message);
+      }
     }
+  };
 
-    const handleSubmit = async () => {
-        await login();
-        // Navigera till Home
-    }
-
-    return (
-        <div>
-            <h1>Login with your account</h1>
-            <input text="Email" type="email" placeholder="email" value={email} onChange={(event) => setEmail(event.target.value)} />
-            <input text="password" type="password" placeholder="password" value={password} onChange={(event) => setPassword(event.target.value)} />
-            <button onClick={handleSubmit}>Login</button>
-        </div>
-    )
+  const handleSubmit = async () => {
+    const token = await login();
+    setToken(token);
+    // Navigera till Home
+  };
+  if (token) {
+    return redirect("home");
+  }
+  return (
+    <div>
+      <h1>Login with your account</h1>
+      <form>
+        <input
+          text="Email"
+          type="email"
+          placeholder="email"
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+        />
+        <input
+          text="password"
+          type="password"
+          placeholder="password"
+          value={password}
+          onChange={(event) => setPassword(event.target.value)}
+        />
+        <button onClick={handleSubmit}>Login</button>
+      </form>
+    </div>
+  );
 }
 
 export default Login;
